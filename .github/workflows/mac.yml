@@ -1,0 +1,38 @@
+name: Construir instalador Mac
+
+# Se ejecuta manualmente desde la pestaña "Actions" de GitHub.
+on:
+  workflow_dispatch:
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Construir el instalador (.dmg universal)
+        run: npm run dist:mac
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - name: Publicar el instalador para descargar
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: AndyiOS — instalador para Mac
+          body: |
+            Instalador de AndyiOS para macOS (Intel y Apple Silicon).
+            Descarga el archivo .dmg de abajo.
+          files: release/*.dmg
+          make_latest: true

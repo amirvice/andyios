@@ -1,0 +1,44 @@
+{
+  "name": "andyios",
+  "version": "0.1.0",
+  "description": "AndyiOS — gestión de inventario y ventas de reventa de móviles",
+  "private": true,
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "concurrently -k -n VITE,ELECTRON -c cyan,green \"npm:dev:vite\" \"npm:dev:electron\"",
+    "dev:vite": "vite",
+    "dev:electron": "wait-on tcp:127.0.0.1:5173 && electron .",
+    "build": "vite build",
+    "preview": "vite preview",
+    "dist:mac": "vite build && electron-builder --mac --publish never"
+  },
+  "build": {
+    "appId": "com.andyios.app",
+    "productName": "AndyiOS",
+    "directories": { "output": "release" },
+    "asarUnpack": ["**/node_modules/sql.js/**"],
+    "mac": {
+      "target": [{ "target": "dmg", "arch": "universal" }],
+      "category": "public.app-category.business",
+      "identity": null,
+      "artifactName": "AndyiOS-${version}-mac.${ext}"
+    },
+    "dmg": {
+      "title": "Instalar AndyiOS"
+    }
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.0",
+    "electron": "^33.4.11",
+    "electron-builder": "^26.8.1",
+    "vite": "^6.0.5",
+    "wait-on": "^8.0.1"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^3.8.1",
+    "sql.js": "^1.14.1"
+  }
+}
