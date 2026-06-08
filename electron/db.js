@@ -95,6 +95,17 @@ function crearEsquema() {
       fecha   TEXT
     )
   `)
+  db.run(`
+    CREATE TABLE IF NOT EXISTS movimientos (
+      id        INTEGER PRIMARY KEY AUTOINCREMENT,
+      tipo      TEXT NOT NULL,           -- 'ingreso' | 'gasto'
+      concepto  TEXT,
+      monto     REAL NOT NULL DEFAULT 0,
+      categoria TEXT,
+      fecha     TEXT NOT NULL,
+      notas     TEXT
+    )
+  `)
 }
 
 // Añade columnas nuevas a bases de datos ya existentes (sin perder datos).
@@ -172,6 +183,40 @@ function agregarProducto(p) {
   }
   guardar()
   return ultimo
+}
+
+// Edita un producto existente (precios, atributos, etiqueta, etc.).
+function actualizarProducto(p) {
+  db.run(`
+    UPDATE productos SET
+      precio_costo = $precio_costo, precio_potencial = $precio_potencial, foto = $foto,
+      modelo = $modelo, serie = $serie, almacenamiento = $almacenamiento, bateria = $bateria,
+      estado_fisico = $estado_fisico, color = $color, incluye_caja = $incluye_caja,
+      incluye_cargador = $incluye_cargador, piezas_reemplazadas = $piezas_reemplazadas,
+      nombre = $nombre, categoria = $categoria, talla = $talla, etiqueta = $etiqueta, notas = $notas
+    WHERE id = $id
+  `, {
+    $id: p.id,
+    $precio_costo: Number(p.precio_costo) || 0,
+    $precio_potencial: Number(p.precio_potencial) || 0,
+    $foto: p.foto || null,
+    $modelo: p.modelo || null,
+    $serie: p.serie || null,
+    $almacenamiento: p.almacenamiento || null,
+    $bateria: p.bateria != null && p.bateria !== '' ? Number(p.bateria) : null,
+    $estado_fisico: p.estado_fisico || null,
+    $color: p.color || null,
+    $incluye_caja: p.incluye_caja ? 1 : 0,
+    $incluye_cargador: p.incluye_cargador ? 1 : 0,
+    $piezas_reemplazadas: p.piezas_reemplazadas || null,
+    $nombre: p.nombre || null,
+    $categoria: p.categoria || null,
+    $talla: p.talla || null,
+    $etiqueta: p.etiqueta || null,
+    $notas: p.notas || null
+  })
+  guardar()
+  return query('SELECT * FROM productos WHERE id = $id', { $id: p.id })[0]
 }
 
 function eliminarProducto(id) {
@@ -254,12 +299,27 @@ function agregarModeloZapato(m) {
 }
 function eliminarModeloZapato(id) { db.run('DELETE FROM modelos_zapato WHERE id = $id', { $id: id }); guardar(); return true }
 
+// ----- Movimientos (ingresos / gastos manuales, fuera de ventas) -----
+function listarMovimientos() { return query('SELECT * FROM movimientos ORDER BY datetime(fecha) DESC, id DESC') }
+function agregarMovimiento(m) {
+  db.run('INSERT INTO movimientos (tipo, concepto, monto, categoria, fecha, notas) VALUES ($t, $c, $mo, $cat, $f, $n)', {
+    $t: m.tipo === 'ingreso' ? 'ingreso' : 'gasto',
+    $c: m.concepto || null, $mo: Number(m.monto) || 0, $cat: m.categoria || null,
+    $f: m.fecha || new Date().toISOString(), $n: m.notas || null
+  })
+  guardar(); return query('SELECT * FROM movimientos ORDER BY id DESC LIMIT 1')[0]
+}
+function eliminarMovimiento(id) { db.run('DELETE FROM movimientos WHERE id = $id', { $id: id }); guardar(); return true }
+
 // ----- Estadísticas -----
 function estadisticas() {
   const suma = (filas, campo) => filas.reduce((t, f) => t + (Number(f[campo]) || 0), 0)
   const disponibles = query("SELECT * FROM productos WHERE estado = 'Disponible'")
   const todos = query('SELECT precio_costo FROM productos')
   const ventas = query('SELECT * FROM ventas')
+  const movimientos = query('SELECT * FROM movimientos')
+  const ingresosMov = movimientos.filter((m) => m.tipo === 'ingreso')
+  const gastosMov = movimientos.filter((m) => m.tipo === 'gasto')
 
   const valor_inventario = suma(disponibles, 'precio_costo')
   const valor_potencial = suma(disponibles, 'precio_potencial')
@@ -278,9 +338,23 @@ function estadisticas() {
   for (let i = 5; i >= 0; i--) {
     const d = new Date(ahora.getFullYear(), ahora.getMonth() - i, 1)
     const dm = ventas.filter((v) => enMes(v, d.getFullYear(), d.getMonth()))
-    ganancias_por_mes.push({ mes: MESES[d.getMonth()], ganancia: suma(dm, 'ganancia'), ventas: dm.length })
+    const im = ingresosMov.filter((v) => enMes(v, d.getFullYear(), d.getMonth()))
+    const gm = gastosMov.filter((v) => enMes(v, d.getFullYear(), d.getMonth()))
+    const ganancia = suma(dm, 'ganancia')
+    const ingresos_extra = suma(im, 'monto')
+    const gastos = suma(gm, 'monto')
+    ganancias_por_mes.push({
+      mes: MESES[d.getMonth()], ganancia, ventas: dm.length,
+      ingresos_extra, gastos, entradas: ganancia + ingresos_extra, balance: ganancia + ingresos_extra - gastos
+    })
   }
   const vMes = ventas.filter((v) => enMes(v, ahora.getFullYear(), ahora.getMonth()))
+  const ingresos_extra_mes = suma(ingresosMov.filter((v) => enMes(v, ahora.getFullYear(), ahora.getMonth())), 'monto')
+  const gastos_mes = suma(gastosMov.filter((v) => enMes(v, ahora.getFullYear(), ahora.getMonth())), 'monto')
+  const ganancias_mes = suma(vMes, 'ganancia')
+  const ganancias_realizadas = suma(ventas, 'ganancia')
+  const ingresos_extra_total = suma(ingresosMov, 'monto')
+  const gastos_total = suma(gastosMov, 'monto')
 
   return {
     valor_inventario, valor_potencial,
@@ -288,11 +362,19 @@ function estadisticas() {
     unidades_stock: disponibles.length,
     costos_totales: suma(todos, 'precio_costo'),
     inventario_por_tipo,
-    ganancias_realizadas: suma(ventas, 'ganancia'),
-    ganancias_mes: suma(vMes, 'ganancia'),
+    ganancias_realizadas,
+    ganancias_mes,
     ventas_mes: vMes.length,
     ganancias_por_mes,
-    hay_ventas: ventas.length > 0
+    hay_ventas: ventas.length > 0,
+    // Finanzas (ingresos/gastos manuales)
+    ingresos_extra_mes,
+    gastos_mes,
+    ingresos_extra_total,
+    gastos_total,
+    balance_mes: ganancias_mes + ingresos_extra_mes - gastos_mes,
+    balance_total: ganancias_realizadas + ingresos_extra_total - gastos_total,
+    hay_movimientos: movimientos.length > 0
   }
 }
 
@@ -301,9 +383,10 @@ function rutaDB() { return dbPath }
 function reabrir() { abrir() } // recarga la base desde el archivo en disco
 
 module.exports = {
-  init, listarProductos, agregarProducto, eliminarProducto, estadisticas,
+  init, listarProductos, agregarProducto, actualizarProducto, eliminarProducto, estadisticas,
   registrarVenta, listarVentas, registrarCambio, listarCambios,
   listarClientes, agregarCliente, actualizarCliente, eliminarCliente,
   listarModelosZapato, agregarModeloZapato, eliminarModeloZapato,
+  listarMovimientos, agregarMovimiento, eliminarMovimiento,
   rutaDB, reabrir
 }

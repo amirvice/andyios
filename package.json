@@ -1,6 +1,6 @@
 {
   "name": "andyios",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "AndyiOS — gestión de inventario y ventas de reventa de móviles",
   "private": true,
   "main": "electron/main.js",
@@ -21,7 +21,7 @@
       "target": [{ "target": "dmg", "arch": "universal" }],
       "category": "public.app-category.business",
       "identity": null,
-      "artifactName": "AndyiOS-${version}-mac.${ext}"
+      "artifactName": "AndyiOS-mac.${ext}"
     },
     "dmg": {
       "title": "Instalar AndyiOS"

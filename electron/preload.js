@@ -9,7 +9,12 @@ contextBridge.exposeInMainWorld('andy', {
   listarProductos: () => ipcRenderer.invoke('productos:list'),
   agregarProducto: (producto) => ipcRenderer.invoke('productos:add', producto),
   eliminarProducto: (id) => ipcRenderer.invoke('productos:remove', id),
+  actualizarProducto: (p) => ipcRenderer.invoke('productos:update', p),
   estadisticas: () => ipcRenderer.invoke('stats:get'),
+  // Movimientos (ingresos / gastos)
+  listarMovimientos: () => ipcRenderer.invoke('mov:list'),
+  agregarMovimiento: (m) => ipcRenderer.invoke('mov:add', m),
+  eliminarMovimiento: (id) => ipcRenderer.invoke('mov:remove', id),
   // Ventas y cambios
   listarVentas: () => ipcRenderer.invoke('ventas:list'),
   registrarVenta: (venta) => ipcRenderer.invoke('ventas:add', venta),

@@ -8,6 +8,7 @@ const ITEMS = [
   { id: 'cambios', ico: '🔄', label: 'Cambios' },
   { id: 'zapatos', ico: '👟', label: 'Zapatos' },
   { id: 'clientes', ico: '👥', label: 'Clientes' },
+  { id: 'caja', ico: '💵', label: 'Caja' },
   { id: 'reportes', ico: '📈', label: 'Reportes' }
 ]
 

@@ -30,6 +30,13 @@ export async function agregarProducto(p) {
   return row
 }
 
+export async function actualizarProducto(p) {
+  if (tieneAndy) return window.andy.actualizarProducto(p)
+  const i = memoria.findIndex((x) => x.id === p.id)
+  if (i >= 0) memoria[i] = { ...memoria[i], ...p, incluye_caja: p.incluye_caja ? 1 : 0, incluye_cargador: p.incluye_cargador ? 1 : 0 }
+  return memoria[i]
+}
+
 export async function eliminarProducto(id) {
   if (tieneAndy) return window.andy.eliminarProducto(id)
   memoria = memoria.filter((p) => p.id !== id)

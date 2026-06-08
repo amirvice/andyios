@@ -66,7 +66,13 @@ ipcMain.handle('settings:set', (_evt, nuevos) => guardarAjustes(nuevos))
 ipcMain.handle('productos:list', () => db.listarProductos())
 ipcMain.handle('productos:add', (_evt, producto) => db.agregarProducto(producto))
 ipcMain.handle('productos:remove', (_evt, id) => db.eliminarProducto(id))
+ipcMain.handle('productos:update', (_evt, p) => db.actualizarProducto(p))
 ipcMain.handle('stats:get', () => db.estadisticas())
+
+// ----- Movimientos (ingresos / gastos) -----
+ipcMain.handle('mov:list', () => db.listarMovimientos())
+ipcMain.handle('mov:add', (_evt, m) => db.agregarMovimiento(m))
+ipcMain.handle('mov:remove', (_evt, id) => db.eliminarMovimiento(id))
 
 // ----- Ventas y cambios -----
 ipcMain.handle('ventas:list', () => db.listarVentas())

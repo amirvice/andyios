@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import {
-  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  PieChart, Pie, Cell, Legend
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  PieChart, Pie, Cell
 } from 'recharts'
 import { useSettings, fmtUSD, fmtBs } from '../settings.jsx'
 import { estadisticas, listarProductos, listarVentas } from '../productos.js'
+import { listarMovimientos } from '../movimientos.js'
 import { iconoProducto, describirProducto } from '../data/opciones.js'
 
 const COLORES = ['#007AFF', '#34C759', '#FF9F0A', '#AF52DE', '#FF375F', '#5AC8FA']
@@ -17,11 +18,13 @@ export default function Dashboard({ irA }) {
   const [stats, setStats] = useState(null)
   const [recientes, setRecientes] = useState([])
   const [ventas, setVentas] = useState([])
+  const [movs, setMovs] = useState([])
 
   useEffect(() => {
     estadisticas().then(setStats)
-    listarProductos().then((p) => setRecientes(p.slice(0, 5)))
-    listarVentas().then((v) => setVentas(v.slice(0, 5)))
+    listarProductos().then((p) => setRecientes(p.slice(0, 4)))
+    listarVentas().then((v) => setVentas(v.slice(0, 4)))
+    listarMovimientos().then((m) => setMovs(m.slice(0, 5)))
   }, [])
 
   const ejeColor = oscuro ? '#98989D' : '#86868B'
@@ -35,12 +38,13 @@ export default function Dashboard({ irA }) {
   if (!stats) return (<><div className="topbar"><div><h1>Dashboard</h1></div></div><div className="content"><div className="note">Cargando…</div></div></>)
 
   const metricas = [
-    { t: 'Valor de inventario', v: stats.valor_inventario, d: `${stats.unidades_stock} unidades · costo`, ico: '📦' },
-    { t: 'Ganancia potencial', v: stats.ganancia_potencial, d: 'si vendes todo el stock', ico: '✨', up: true },
+    { t: 'Valor de inventario', v: stats.valor_inventario, d: `${stats.unidades_stock} uds · potencial ${fmtUSD(stats.ganancia_potencial)}`, ico: '📦' },
     { t: 'Ganancia del mes', v: stats.ganancias_mes, d: `${stats.ventas_mes} venta(s) este mes`, ico: '💰', up: stats.ganancias_mes > 0 },
-    { t: 'Ganancias totales', v: stats.ganancias_realizadas, d: 'realizadas', ico: '🏆', up: true }
+    { t: 'Gastos del mes', v: stats.gastos_mes, d: `otros ingresos: ${fmtUSD(stats.ingresos_extra_mes)}`, ico: '🧾' },
+    { t: 'Balance del mes', v: stats.balance_mes, d: 'ventas + ingresos − gastos', ico: '⚖️', balance: true }
   ]
   const hayStock = stats.unidades_stock > 0
+  const hayFlujo = stats.hay_ventas || stats.hay_movimientos
 
   return (
     <>
@@ -62,7 +66,7 @@ export default function Dashboard({ irA }) {
             <div className="metric" key={m.t}>
               <span className="chip">{m.ico}</span>
               <div className="t">{m.t}</div>
-              <div className="v">{fmtUSD(m.v)}</div>
+              <div className="v" style={m.balance ? { color: m.v >= 0 ? 'var(--verde)' : 'var(--rojo)' } : undefined}>{fmtUSD(m.v)}</div>
               {fmtBs(m.v, tasa) && <div className="bs">{fmtBs(m.v, tasa)}</div>}
               <div className={'d ' + (m.up ? 'up' : 'muted')}>{m.d}</div>
             </div>
@@ -88,38 +92,26 @@ export default function Dashboard({ irA }) {
           </div>
 
           <div className="panel">
-            <h3>Ganancias por mes (USD)</h3>
+            <h3>Entradas y gastos por mes (USD)</h3>
             <div className="chart">
-              {stats.hay_ventas ? (
+              {hayFlujo ? (
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={stats.ganancias_por_mes} margin={{ top: 12, right: 12, left: -6, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
                     <XAxis dataKey="mes" tick={{ fill: ejeColor, fontSize: 12 }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fill: ejeColor, fontSize: 12 }} axisLine={false} tickLine={false} />
-                    <Tooltip cursor={{ fill: oscuro ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.04)' }} contentStyle={tooltipStyle} formatter={(v) => [fmtUSD(v), 'Ganancia']} />
-                    <Bar dataKey="ganancia" fill="#34C759" radius={[6, 6, 0, 0]} maxBarSize={42} />
+                    <Tooltip cursor={{ fill: oscuro ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.04)' }} contentStyle={tooltipStyle} formatter={(v, n) => [fmtUSD(v), n === 'entradas' ? 'Entradas' : 'Gastos']} />
+                    <Legend wrapperStyle={{ fontSize: 12, color: ejeColor }} />
+                    <Bar dataKey="entradas" name="Entradas" fill="#34C759" radius={[5, 5, 0, 0]} maxBarSize={26} />
+                    <Bar dataKey="gastos" name="Gastos" fill="#FF3B30" radius={[5, 5, 0, 0]} maxBarSize={26} />
                   </BarChart>
                 </ResponsiveContainer>
-              ) : <VacioChart texto="Registra ventas para ver tus ganancias por mes" />}
+              ) : <VacioChart texto="Registra ventas o movimientos para ver el flujo" />}
             </div>
           </div>
         </div>
 
         <div className="grid2" style={{ marginTop: 16 }}>
-          <div className="panel">
-            <h3>Inventario reciente <a onClick={() => irA('inventario')}>Ver todo</a></h3>
-            {recientes.length > 0 ? recientes.map((p) => {
-              const d = describirProducto(p)
-              return (
-                <div className="row" key={p.id}>
-                  <div className="thumb">{p.foto ? <img src={p.foto} alt="" className="thumb-img" /> : iconoProducto(p)}</div>
-                  <div className="info"><b>{d.titulo}</b><small>{d.detalles || d.sub}</small></div>
-                  <div className="price"><b>{fmtUSD(p.precio_potencial)}</b><small>costo {fmtUSD(p.precio_costo)}</small></div>
-                </div>
-              )
-            }) : <div className="note">Aún no hay productos. <a className="link" onClick={() => irA('inventario')}>Agregar el primero</a></div>}
-          </div>
-
           <div className="panel">
             <h3>Ventas recientes <a onClick={() => irA('ventas')}>Ver todo</a></h3>
             {ventas.length > 0 ? ventas.map((v) => {
@@ -132,9 +124,25 @@ export default function Dashboard({ irA }) {
                 </div>
               )
             }) : (
-              <div className="empty" style={{ border: 'none', boxShadow: 'none', padding: '36px 20px' }}>
+              <div className="empty" style={{ border: 'none', boxShadow: 'none', padding: '30px 20px' }}>
                 <div className="empty-ico">💳</div><b>Aún no registras ventas</b>
                 <p>Ve a <a className="link" onClick={() => irA('ventas')}>Ventas</a> para registrar la primera.</p>
+              </div>
+            )}
+          </div>
+
+          <div className="panel">
+            <h3>Movimientos recientes <a onClick={() => irA('caja')}>Ver todo</a></h3>
+            {movs.length > 0 ? movs.map((m) => (
+              <div className="row" key={m.id}>
+                <div className="thumb">{m.tipo === 'ingreso' ? '💵' : '🧾'}</div>
+                <div className="info"><b>{m.concepto || (m.tipo === 'ingreso' ? 'Ingreso' : 'Gasto')}</b><small>{new Date(m.fecha).toLocaleDateString('es-VE')}{m.categoria ? ` · ${m.categoria}` : ''}</small></div>
+                <div className="price"><b className={m.tipo === 'ingreso' ? 'gain' : 'loss'}>{m.tipo === 'ingreso' ? '+' : '−'}{fmtUSD(m.monto)}</b></div>
+              </div>
+            )) : (
+              <div className="empty" style={{ border: 'none', boxShadow: 'none', padding: '30px 20px' }}>
+                <div className="empty-ico">💵</div><b>Sin movimientos</b>
+                <p>Registra ingresos y gastos en <a className="link" onClick={() => irA('caja')}>Caja</a>.</p>
               </div>
             )}
           </div>

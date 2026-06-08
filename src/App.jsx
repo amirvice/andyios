@@ -6,6 +6,7 @@ import Ventas from './pages/Ventas.jsx'
 import Cambios from './pages/Cambios.jsx'
 import Zapatos from './pages/Zapatos.jsx'
 import Clientes from './pages/Clientes.jsx'
+import Caja from './pages/Caja.jsx'
 import Reportes from './pages/Reportes.jsx'
 import Ajustes from './pages/Ajustes.jsx'
 
@@ -16,6 +17,7 @@ const PAGINAS = {
   cambios: Cambios,
   zapatos: Zapatos,
   clientes: Clientes,
+  caja: Caja,
   reportes: Reportes,
   ajustes: Ajustes
 }

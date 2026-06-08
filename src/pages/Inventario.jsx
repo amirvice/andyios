@@ -3,6 +3,7 @@ import { fmtUSD } from '../settings.jsx'
 import { listarProductos, eliminarProducto } from '../productos.js'
 import { iconoProducto, describirProducto } from '../data/opciones.js'
 import AgregarDispositivo from '../components/AgregarDispositivo.jsx'
+import EditarProducto from '../components/EditarProducto.jsx'
 
 export default function Inventario() {
   const [productos, setProductos] = useState([])
@@ -11,6 +12,7 @@ export default function Inventario() {
   const [estado, setEstado] = useState('Disponible')
   const [busqueda, setBusqueda] = useState('')
   const [modal, setModal] = useState(false)
+  const [editar, setEditar] = useState(null)
 
   async function recargar() {
     setCargando(true)
@@ -96,7 +98,10 @@ export default function Inventario() {
                     <td className="num">{fmtUSD(p.precio_costo)}</td>
                     <td className="num"><b>{fmtUSD(p.precio_potencial)}</b></td>
                     <td><span className={'badge ' + (p.estado === 'Disponible' ? 'disp' : 'vend')}>{p.estado}</span></td>
-                    <td><button className="icon-btn" title="Eliminar" onClick={() => borrar(p)}>🗑️</button></td>
+                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                      <button className="icon-btn" title="Editar" onClick={() => setEditar(p)}>✏️</button>
+                      <button className="icon-btn" title="Eliminar" onClick={() => borrar(p)}>🗑️</button>
+                    </td>
                   </tr>
                 )
               })}
@@ -110,6 +115,9 @@ export default function Inventario() {
 
       {modal && (
         <AgregarDispositivo onClose={() => setModal(false)} onGuardado={() => recargar()} />
+      )}
+      {editar && (
+        <EditarProducto producto={editar} onClose={() => setEditar(null)} onGuardado={() => { setEditar(null); recargar() }} />
       )}
     </>
   )
