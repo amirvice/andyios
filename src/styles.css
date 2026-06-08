@@ -161,7 +161,8 @@ tbody tr:hover{background:#FAFAFC}
   display:none;place-items:center;z-index:50}
 .overlay.show{display:grid}
 .modal{width:420px;background:#fff;border-radius:18px;padding:26px;
-  box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center}
+  box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center;
+  max-height:88vh;overflow-y:auto}
 .modal h2{font-size:20px;margin-bottom:6px}
 .modal p{color:var(--texto-2);font-size:14px;margin-bottom:22px}
 .choices{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -256,7 +257,9 @@ body{transition:background-color .25s ease,color .25s ease}
   font-size:12px;text-align:center;overflow:hidden;line-height:1.5}
 .foto-pick:hover{border-color:var(--azul)}
 .foto-pick img{width:100%;height:100%;object-fit:cover}
-.wz-pie{display:flex;justify-content:space-between;gap:12px;margin-top:24px}
+.wz-pie{display:flex;justify-content:space-between;gap:12px;margin-top:18px;
+  position:sticky;bottom:0;background:var(--card);padding-top:14px;
+  border-top:1px solid var(--borde)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .thumb-img{width:100%;height:100%;object-fit:cover;border-radius:10px}
 .icon-btn{border:none;background:none;cursor:pointer;font-size:15px;opacity:.55;padding:4px}
