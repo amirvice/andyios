@@ -8,7 +8,7 @@ import { estadisticas, listarProductos, listarVentas } from '../productos.js'
 import { listarMovimientos } from '../movimientos.js'
 import { iconoProducto, describirProducto } from '../data/opciones.js'
 
-const COLORES = ['#007AFF', '#34C759', '#FF9F0A', '#AF52DE', '#FF375F', '#5AC8FA']
+const COLORES = ['#0E9AAE', '#34C759', '#FF9F0A', '#AF52DE', '#FF375F', '#5AC8FA']
 
 export default function Dashboard({ irA }) {
   const { settings } = useSettings()

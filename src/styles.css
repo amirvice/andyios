@@ -1,8 +1,8 @@
 /* ===== Sistema de diseño AndyiOS — estilo Apple/iOS/macOS, modo claro ===== */
 :root{
-  --azul:#007AFF;
-  --azul-hover:#0066d6;
-  --azul-suave:#E8F1FF;
+  --azul:#0E9AAE;          /* turquesa Vicery (acento principal) */
+  --azul-hover:#0C8595;
+  --azul-suave:#E2F6F8;
   --verde:#34C759;
   --rojo:#FF3B30;
   --gris-bg:#F5F5F7;
@@ -32,7 +32,8 @@ body{
   -webkit-app-region:drag; /* permite mover la ventana arrastrando la sidebar (Mac) */
 }
 .sidebar button,.sidebar input{-webkit-app-region:no-drag}
-.brand{display:flex;align-items:center;gap:10px;padding:18px 8px 18px}
+.brand{display:flex;align-items:center;gap:10px;padding:16px 8px 18px}
+.brand-logo{width:158px;height:auto;display:block}
 .brand .logo{width:30px;height:30px;border-radius:8px;
   background:linear-gradient(135deg,#0A84FF,#0040DD);
   display:grid;place-items:center;color:#fff;font-weight:700;font-size:15px}
@@ -182,9 +183,9 @@ body{transition:background-color .25s ease,color .25s ease}
 
 /* ===== Modo oscuro ===== */
 [data-theme="dark"]{
-  --azul:#0A84FF;
-  --azul-hover:#3a9bff;
-  --azul-suave:rgba(10,132,255,.18);
+  --azul:#15ABBF;          /* turquesa Vicery para modo oscuro */
+  --azul-hover:#1ABED2;
+  --azul-suave:rgba(62,224,212,.16);
   --gris-bg:#1C1C1E;
   --card:#2C2C2E;
   --texto:#F5F5F7;

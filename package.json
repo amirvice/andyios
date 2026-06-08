@@ -15,10 +15,19 @@
   "build": {
     "appId": "com.andyios.app",
     "productName": "AndyiOS",
-    "directories": { "output": "release" },
-    "asarUnpack": ["**/node_modules/sql.js/**"],
+    "directories": {
+      "output": "release"
+    },
+    "asarUnpack": [
+      "**/node_modules/sql.js/**"
+    ],
     "mac": {
-      "target": [{ "target": "dmg", "arch": "universal" }],
+      "target": [
+        {
+          "target": "dmg",
+          "arch": "universal"
+        }
+      ],
       "category": "public.app-category.business",
       "identity": null,
       "artifactName": "AndyiOS-mac.${ext}"
@@ -28,6 +37,7 @@
     }
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@vitejs/plugin-react": "^4.3.4",
     "concurrently": "^9.1.0",
     "electron": "^33.4.11",

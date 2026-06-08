@@ -1,5 +1,7 @@
 import React from 'react'
 import { useSettings } from '../settings.jsx'
+import logoClaro from '../assets/vicery-horiz-claro.svg'
+import logoOscuro from '../assets/vicery-horiz-oscuro.svg'
 
 const ITEMS = [
   { id: 'dashboard', ico: '📊', label: 'Dashboard' },
@@ -23,8 +25,7 @@ export default function Sidebar({ vista, setVista }) {
   return (
     <aside className="sidebar">
       <div className="brand">
-        <div className="logo">A</div>
-        <b>{settings.nombreLocal || 'AndyiOS'}</b>
+        <img className="brand-logo" src={oscuro ? logoOscuro : logoClaro} alt="Vicery" />
       </div>
 
       <div className="nav-label">Menú</div>

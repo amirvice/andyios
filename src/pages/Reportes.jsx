@@ -8,7 +8,7 @@ import { listarVentas } from '../productos.js'
 import { describirProducto } from '../data/opciones.js'
 import { descargarCSV } from '../backup.js'
 
-const COLORES = ['#007AFF', '#34C759', '#FF9F0A', '#AF52DE', '#FF375F', '#5AC8FA']
+const COLORES = ['#0E9AAE', '#34C759', '#FF9F0A', '#AF52DE', '#FF375F', '#5AC8FA']
 const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
 
 const PERIODOS = [
@@ -135,7 +135,7 @@ export default function Reportes() {
                       <YAxis tick={{ fill: ejeColor, fontSize: 12 }} axisLine={false} tickLine={false} />
                       <Tooltip cursor={{ fill: oscuro ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.04)' }} contentStyle={tooltipStyle} formatter={(v, n) => [fmtUSD(v), n === 'ganancia' ? 'Ganancia' : 'Ingresos']} />
                       <Legend wrapperStyle={{ fontSize: 12, color: ejeColor }} />
-                      <Bar dataKey="ingresos" name="Ingresos" fill="#007AFF" radius={[5, 5, 0, 0]} maxBarSize={28} />
+                      <Bar dataKey="ingresos" name="Ingresos" fill="#0E9AAE" radius={[5, 5, 0, 0]} maxBarSize={28} />
                       <Bar dataKey="ganancia" name="Ganancia" fill="#34C759" radius={[5, 5, 0, 0]} maxBarSize={28} />
                     </BarChart>
                   </ResponsiveContainer>
