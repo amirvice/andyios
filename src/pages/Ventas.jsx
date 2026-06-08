@@ -3,13 +3,13 @@ import { useSettings, fmtUSD, fmtBs } from '../settings.jsx'
 import { listarProductos, listarVentas, registrarVenta } from '../productos.js'
 import { iconoProducto, describirProducto } from '../data/opciones.js'
 import ClientePicker from '../components/ClientePicker.jsx'
+import BuscadorProductos from '../components/BuscadorProductos.jsx'
 
 export default function Ventas() {
   const { settings } = useSettings()
   const tasa = settings.tasaBs
   const [disponibles, setDisponibles] = useState([])
   const [ventas, setVentas] = useState([])
-  const [busqueda, setBusqueda] = useState('')
   const [sel, setSel] = useState(null)
 
   async function recargar() {
@@ -18,12 +18,6 @@ export default function Ventas() {
     setVentas(await listarVentas())
   }
   useEffect(() => { recargar() }, [])
-
-  const filtrados = disponibles.filter((p) => {
-    if (!busqueda) return true
-    const d = describirProducto(p)
-    return `${d.titulo} ${d.sub} ${d.detalles}`.toLowerCase().includes(busqueda.toLowerCase())
-  })
 
   return (
     <>
@@ -37,21 +31,18 @@ export default function Ventas() {
           <div className="panel">
             <h3>Vender un producto</h3>
             <div style={{ padding: '12px 16px' }}>
-              <div className="search"><input placeholder="Buscar producto disponible…" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} /></div>
+              <BuscadorProductos productos={disponibles} vacioTexto="No hay productos disponibles para vender." renderItem={(p) => {
+                const d = describirProducto(p)
+                return (
+                  <div className="row" key={p.id}>
+                    <div className="thumb">{p.foto ? <img src={p.foto} alt="" className="thumb-img" /> : iconoProducto(p)}</div>
+                    <div className="info"><b>{d.titulo}</b><small>{d.detalles || d.sub}</small></div>
+                    <div className="price"><b>{fmtUSD(p.precio_potencial)}</b><small>costo {fmtUSD(p.precio_costo)}</small></div>
+                    <button className="btn btn-primary btn-sm" onClick={() => setSel(p)}>Vender</button>
+                  </div>
+                )
+              }} />
             </div>
-            {filtrados.length === 0 ? (
-              <div className="note">No hay productos disponibles para vender.</div>
-            ) : filtrados.map((p) => {
-              const d = describirProducto(p)
-              return (
-                <div className="row" key={p.id}>
-                  <div className="thumb">{p.foto ? <img src={p.foto} alt="" className="thumb-img" /> : iconoProducto(p)}</div>
-                  <div className="info"><b>{d.titulo}</b><small>{d.detalles || d.sub}</small></div>
-                  <div className="price"><b>{fmtUSD(p.precio_potencial)}</b><small>costo {fmtUSD(p.precio_costo)}</small></div>
-                  <button className="btn btn-primary btn-sm" onClick={() => setSel(p)}>Vender</button>
-                </div>
-              )
-            })}
           </div>
 
           {/* Historial de ventas */}

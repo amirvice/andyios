@@ -1,7 +1,7 @@
 import React from 'react'
 import { useSettings } from '../settings.jsx'
-import logoClaro from '../assets/vicery-horiz-claro.svg'
-import logoOscuro from '../assets/vicery-horiz-oscuro.svg'
+import logoClaro from '../assets/vicery-horiz-claro.png'
+import logoOscuro from '../assets/vicery-horiz-oscuro.png'
 
 const ITEMS = [
   { id: 'dashboard', ico: '📊', label: 'Dashboard' },

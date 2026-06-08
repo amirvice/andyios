@@ -3,6 +3,7 @@ import { useSettings, fmtUSD, fmtBs } from '../settings.jsx'
 import { listarProductos, listarCambios, registrarCambio } from '../productos.js'
 import { iconoProducto, describirProducto, MODELOS, SERIES, ALMACENAMIENTO, ESTADOS_FISICOS } from '../data/opciones.js'
 import ClientePicker from '../components/ClientePicker.jsx'
+import BuscadorProductos from '../components/BuscadorProductos.jsx'
 
 function Chips({ opciones, valor, onChange }) {
   return (
@@ -76,22 +77,23 @@ export default function Cambios() {
           <div className="panel">
             <h3>1 · Equipo que se lleva el cliente</h3>
             <div className="cambio-body">
-              {disponibles.length === 0 ? (
-                <div className="note">No hay productos disponibles en el inventario.</div>
-              ) : (
-                <div className="lista-sel">
-                  {disponibles.map((p) => {
-                    const d = describirProducto(p)
-                    return (
-                      <div key={p.id} className={'row sel-row' + (entregadoId === p.id ? ' sel' : '')} onClick={() => elegirEntregado(p)}>
-                        <div className="thumb">{p.foto ? <img src={p.foto} alt="" className="thumb-img" /> : iconoProducto(p)}</div>
-                        <div className="info"><b>{d.titulo}</b><small>{d.detalles || d.sub}</small></div>
-                        <div className="price"><b>{fmtUSD(p.precio_potencial)}</b></div>
-                      </div>
-                    )
-                  })}
+              {entregado && (
+                <div className="venta-prod" style={{ marginBottom: 12 }}>
+                  <div className="thumb">{entregado.foto ? <img src={entregado.foto} alt="" className="thumb-img" /> : iconoProducto(entregado)}</div>
+                  <div><b>{describirProducto(entregado).titulo}</b><br /><small>{describirProducto(entregado).detalles || describirProducto(entregado).sub}</small></div>
                 </div>
               )}
+              <BuscadorProductos productos={disponibles} placeholder="Buscar el equipo que se lleva…"
+                vacioTexto="No hay productos disponibles en el inventario." renderItem={(p) => {
+                  const d = describirProducto(p)
+                  return (
+                    <div key={p.id} className={'row sel-row' + (entregadoId === p.id ? ' sel' : '')} onClick={() => elegirEntregado(p)}>
+                      <div className="thumb">{p.foto ? <img src={p.foto} alt="" className="thumb-img" /> : iconoProducto(p)}</div>
+                      <div className="info"><b>{d.titulo}</b><small>{d.detalles || d.sub}</small></div>
+                      <div className="price"><b>{fmtUSD(p.precio_potencial)}</b></div>
+                    </div>
+                  )
+                }} />
               {entregado && (
                 <label className="campo" style={{ marginTop: 14 }}>Precio de venta de este equipo (USD)
                   <input type="number" min="0" value={precioVenta} onChange={(e) => setPrecioVenta(e.target.value)} />
