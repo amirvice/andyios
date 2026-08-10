@@ -1,5 +1,5 @@
 // Catálogo de opciones para los formularios (selecciones fijas).
-export const MODELOS = ['11', '12', '13', '14', '15', '16', '17']
+export const MODELOS = ['XR', '11', '12', '13', '14', '15', '16', '17', '18']
 export const SERIES = ['Normal', 'Plus', 'Pro', 'Pro Max']
 export const ALMACENAMIENTO = ['64 GB', '128 GB', '256 GB', '512 GB', '1 TB']
 export const ESTADOS_FISICOS = ['Decente', 'Regular', 'Excelente']

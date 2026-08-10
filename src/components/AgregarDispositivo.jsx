@@ -214,6 +214,7 @@ export default function AgregarDispositivo({ onClose, onGuardado }) {
         </div>
 
         <Pie onCancelar={onClose}
+          atras={paso > 1 ? () => setPaso(paso - 1) : null}
           primario={esUltimo
             ? { texto: guardando ? 'Guardando…' : 'Guardar', onClick: guardar, disabled: !validoFinal || guardando }
             : { texto: 'Siguiente →', onClick: () => setPaso(paso + 1), disabled: !puedeAvanzar }} />
@@ -240,10 +241,13 @@ function Cabecera({ titulo, onVolver }) {
   )
 }
 
-function Pie({ onCancelar, primario }) {
+function Pie({ onCancelar, atras, primario }) {
   return (
     <div className="wz-pie">
-      <button className="btn btn-ghost" onClick={onCancelar}>Cancelar</button>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button className="btn btn-ghost" onClick={onCancelar}>Cancelar</button>
+        {atras && <button className="btn btn-ghost" onClick={atras}>‹ Atrás</button>}
+      </div>
       <button className="btn btn-primary" onClick={primario.onClick} disabled={primario.disabled}>{primario.texto}</button>
     </div>
   )

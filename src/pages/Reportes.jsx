@@ -183,7 +183,7 @@ export default function Reportes() {
                   {datos.enPeriodo.map((v) => (
                     <tr key={v.id}>
                       <td>{new Date(v.fecha).toLocaleDateString('es-VE')}</td>
-                      <td>{v.producto ? describirProducto(v.producto).titulo : '—'} {v.tipo_operacion === 'cambio' && <span className="badge cambio">cambio</span>}</td>
+                      <td>{v.producto ? describirProducto(v.producto).titulo : '—'} {v.tipo_operacion === 'cambio' && <span className="badge cambio">cambio</span>}{v.tipo_operacion === 'regalo' && <span className="badge regalo">regalo</span>}</td>
                       <td>{v.cliente ? v.cliente.nombre : <span className="muted">—</span>}</td>
                       <td className="num">{fmtUSD(v.precio_final)}</td>
                       <td className="num gain">+{fmtUSD(v.ganancia)}</td>

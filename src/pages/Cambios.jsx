@@ -123,10 +123,18 @@ export default function Cambios() {
                 <label className="campo">Color
                   <input type="text" placeholder="Ej. Negro" value={rec.color} onChange={(e) => setR('color', e.target.value)} />
                 </label>
-                <label className="campo">Valor cotizado (USD)
+                <label className="campo">Valor cotizado — a cómo lo recibes (USD)
                   <input type="number" min="0" placeholder="0" value={rec.valor_cotizado} onChange={(e) => setR('valor_cotizado', e.target.value)} />
                 </label>
               </div>
+              <div className="precios">
+                <label className="campo">Precio de venta — a cómo lo venderás (USD)
+                  <input type="number" min="0" placeholder="0" value={rec.precio_potencial} onChange={(e) => setR('precio_potencial', e.target.value)} />
+                </label>
+              </div>
+              {parseFloat(rec.precio_potencial) > 0 && fmtBs(parseFloat(rec.precio_potencial), tasa) && (
+                <p className="ejemplo muted">Lo pondrás a la venta en <b>{fmtBs(parseFloat(rec.precio_potencial), tasa)}</b></p>
+              )}
             </div>
           </div>
         </div>

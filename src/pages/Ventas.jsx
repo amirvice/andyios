@@ -59,7 +59,7 @@ export default function Ventas() {
                 <div className="row" key={v.id}>
                   <div className="thumb">{v.producto ? iconoProducto(v.producto) : '❓'}</div>
                   <div className="info">
-                    <b>{d.titulo} {v.tipo_operacion === 'cambio' && <span className="badge cambio">cambio</span>}</b>
+                    <b>{d.titulo} {v.tipo_operacion === 'cambio' && <span className="badge cambio">cambio</span>}{v.tipo_operacion === 'regalo' && <span className="badge regalo">regalo</span>}</b>
                     <small>{new Date(v.fecha).toLocaleDateString('es-VE')} · venta {fmtUSD(v.precio_final)}{v.cliente ? ` · 👤 ${v.cliente.nombre}` : ''}</small>
                   </div>
                   <div className="price"><b className={v.ganancia >= 0 ? 'gain' : 'loss'}>{v.ganancia >= 0 ? '+' : ''}{fmtUSD(v.ganancia)}</b><small>ganancia</small></div>
@@ -90,6 +90,14 @@ function VenderModal({ producto, tasa, onClose, onHecho }) {
     onHecho()
   }
 
+  async function regalar() {
+    if (!window.confirm(`¿Regalar "${d.titulo}"? Se registrará como entregado gratis ($0).`)) return
+    setGuardando(true)
+    await registrarVenta({ producto_id: producto.id, precio_final: 0, cliente_id: clienteId, tipo_operacion: 'regalo' })
+    setGuardando(false)
+    onHecho()
+  }
+
   return (
     <div className="overlay show" onClick={(e) => { if (e.target.classList.contains('overlay')) onClose() }}>
       <div className="modal modal-wide">
@@ -116,7 +124,10 @@ function VenderModal({ producto, tasa, onClose, onHecho }) {
         <ClientePicker value={clienteId} onChange={setClienteId} label="Cliente (opcional)" />
 
         <div className="wz-pie">
-          <button className="btn btn-ghost" onClick={onClose}>Cancelar</button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn btn-ghost" onClick={onClose}>Cancelar</button>
+            <button className="btn btn-ghost" onClick={regalar} disabled={guardando} title="Entregar gratis">🎁 Regalar</button>
+          </div>
           <button className="btn btn-primary" onClick={confirmar} disabled={pf <= 0 || guardando}>{guardando ? 'Registrando…' : 'Registrar venta'}</button>
         </div>
       </div>
